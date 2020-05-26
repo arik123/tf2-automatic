@@ -283,4 +283,8 @@ export = class BotManager {
             });
         });
     }
+
+    handlePM2msg(message): boolean {
+        return this.bot.handlePM2msg(message);
+    }
 };

@@ -9,6 +9,7 @@ import Inventory from './Inventory';
 import BotManager from './BotManager';
 import MyHandler from './MyHandler';
 import Groups from './Groups';
+import PM2msg from './PM2msg';
 
 import SteamID from 'steamid';
 import SteamUser from 'steam-user';
@@ -62,6 +63,8 @@ export = class Bot {
     readonly inventoryManager: InventoryManager;
 
     readonly pricelist: Pricelist;
+
+    readonly pm2msg: PM2msg;
 
     // Settings
     private readonly maxLoginAttemptsWithinPeriod: number = 3;
@@ -119,6 +122,8 @@ export = class Bot {
 
         this.handler = new MyHandler(this);
 
+        this.pm2msg = new PM2msg(this);
+
         this.pricelist = new Pricelist(this.schema, this.socket);
         this.inventoryManager = new InventoryManager(this.pricelist);
 
@@ -156,6 +161,10 @@ export = class Bot {
 
         this.addListener(this.pricelist, 'pricelist', this.handler.onPricelist.bind(this.handler), false);
         this.addListener(this.pricelist, 'price', this.handler.onPriceChange.bind(this.handler), true);
+    }
+
+    handlePM2msg(message): boolean {
+        return this.pm2msg.processMessage(message);
     }
 
     getHandler(): Handler {

@@ -95,12 +95,14 @@ ON_DEATH({ uncaughtException: true })(function(signal, err) {
     botManager.stop(crashed ? err : null, true, signal === 'SIGKILL');
 });
 
-process.on('message', function(message) {
+process.on('message', function (message) {
+    log.debug("message: ", message);
+    log.debug("shutting down", message === 'shutdown')
     if (message === 'shutdown') {
         log.warn('Process received shutdown message, stopping...');
 
         botManager.stop(null, true, false);
-    } else {
+    } else if (!botManager.handlePM2msg(message)) {
         log.warn('Process received unknown message `' + message + '`');
     }
 });
