@@ -1,5 +1,6 @@
 import Bot from './Bot';
 import log from '../lib/logger';
+import { EntryData } from './Pricelist';
 
 export = class PM2msg {
     private readonly bot: Bot;
@@ -15,7 +16,8 @@ export = class PM2msg {
         if (!(typeof this[request] == 'function')) return false;
         log.debug(request);
 
-        return this[request](message.data);
+        this[request](message.data);
+        return true;
     }
 
     getPricelist(data: any) {
@@ -31,7 +33,6 @@ export = class PM2msg {
                 pricelist: ret
             }
         });
-        return true;
     }
 
     getInfo(data: any) {
@@ -50,7 +51,6 @@ export = class PM2msg {
                 }
             });
         });
-        return true;
     }
     removeItem(data: any) {
         log.debug(data);
@@ -62,7 +62,7 @@ export = class PM2msg {
                     err: 'No SKU specified!'
                 }
             });
-            return true;
+            return;
         }
         this.bot.pricelist
             .removePrice(data.sku as string, true)
@@ -84,7 +84,6 @@ export = class PM2msg {
                     }
                 });
             });
-        return true;
     }
 
     updateItem(data: any) {
@@ -96,7 +95,7 @@ export = class PM2msg {
                     err: 'No SKU specified!'
                 }
             });
-            return true;
+            return;
         }
         if (!this.bot.pricelist.hasPrice(data.sku as string)) {
             process.send({
@@ -140,6 +139,62 @@ export = class PM2msg {
                         ReqID: data.ReqID,
                         err: 'Failed to update pricelist entry: ' +
                             (err.body && err.body.message ? err.body.message : err.message)
+                    }
+                });
+            });
+    }
+
+    addItem(data: any) {
+        if (data.enabled === undefined) {
+            data.enabled = true;
+        }
+        if (data.max === undefined) {
+            data.max = 1;
+        }
+        if (data.min === undefined) {
+            data.min = 0;
+        }
+        if (data.intent === undefined) {
+            data.intent = 2;
+        }
+
+        if (typeof data.buy === 'object') {
+            data.buy.keys = data.buy.keys || 0;
+            data.buy.metal = data.buy.metal || 0;
+
+            if (data.autoprice === undefined) {
+                data.autoprice = false;
+            }
+        }
+        if (typeof data.sell === 'object') {
+            data.sell.keys = data.sell.keys || 0;
+            data.sell.metal = data.sell.metal || 0;
+
+            if (data.autoprice === undefined) {
+                data.autoprice = false;
+            }
+        }
+
+        if (data.autoprice === undefined) {
+            data.autoprice = true;
+        }
+        this.bot.pricelist
+            .addPrice(data as EntryData, true)
+            .then(entry => {
+                process.send({
+                    type: 'addItem',
+                    data: {
+                        ReqID: data.ReqID,
+                        msg: 'Added "' + entry.name + '".'
+                    }
+                });
+            })
+            .catch(err => {
+                process.send({
+                    type: 'addItem',
+                    data: {
+                        ReqID: data.ReqID,
+                        err: 'Failed to add the item to the pricelist: ' + err.message
                     }
                 });
             });
