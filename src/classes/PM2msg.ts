@@ -53,6 +53,7 @@ export = class PM2msg {
         return true;
     }
     removeItem(data: any) {
+        log.debug(data);
         if (!data.sku) {
             process.send({
                 type: 'removeItem',
@@ -61,6 +62,7 @@ export = class PM2msg {
                     err: 'No SKU specified!'
                 }
             });
+            return true;
         }
         this.bot.pricelist
             .removePrice(data.sku as string, true)
@@ -82,6 +84,7 @@ export = class PM2msg {
                     }
                 });
             });
+        return true;
     }
 
     updateItem(data: any) {
@@ -93,6 +96,7 @@ export = class PM2msg {
                     err: 'No SKU specified!'
                 }
             });
+            return true;
         }
         if (!this.bot.pricelist.hasPrice(data.sku as string)) {
             process.send({
