@@ -87,11 +87,13 @@ export = class PM2msg {
     }
 
     updateItem(data: any) {
+        const ReqID = data.ReqID;
+        delete data.ReqID;
         if (!data.sku) {
             process.send({
                 type: 'updateItem',
                 data: {
-                    ReqID: data.ReqID,
+                    ReqID: ReqID,
                     err: 'No SKU specified!'
                 }
             });
@@ -101,7 +103,7 @@ export = class PM2msg {
             process.send({
                 type: 'updateItem',
                 data: {
-                    ReqID: data.ReqID,
+                    ReqID: ReqID,
                     err: 'Item is not in the pricelist.'
                 }
             });
@@ -127,7 +129,7 @@ export = class PM2msg {
                 process.send({
                     type: 'updateItem',
                     data: {
-                        ReqID: data.ReqID,
+                        ReqID: ReqID,
                         msg: 'Updated "' + entry.name + '".'
                     }
                 });
@@ -136,7 +138,7 @@ export = class PM2msg {
                 process.send({
                     type: 'updateItem',
                     data: {
-                        ReqID: data.ReqID,
+                        ReqID: ReqID,
                         err: 'Failed to update pricelist entry: ' +
                             (err.body && err.body.message ? err.body.message : err.message)
                     }
@@ -145,6 +147,8 @@ export = class PM2msg {
     }
 
     addItem(data: any) {
+        const ReqID = data.ReqID;
+        delete data.ReqID;
         if (data.enabled === undefined) {
             data.enabled = true;
         }
@@ -184,7 +188,7 @@ export = class PM2msg {
                 process.send({
                     type: 'addItem',
                     data: {
-                        ReqID: data.ReqID,
+                        ReqID: ReqID,
                         msg: 'Added "' + entry.name + '".'
                     }
                 });
@@ -193,7 +197,7 @@ export = class PM2msg {
                 process.send({
                     type: 'addItem',
                     data: {
-                        ReqID: data.ReqID,
+                        ReqID: ReqID,
                         err: 'Failed to add the item to the pricelist: ' + err.message
                     }
                 });
