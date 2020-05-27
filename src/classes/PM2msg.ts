@@ -53,4 +53,50 @@ export = class PM2msg {
         return true;
     }
 
+    updateItem(data: any) {
+        if (!this.bot.pricelist.hasPrice(data.sku as string)) {
+            process.send({
+                type: 'updateItem',
+                data: {
+                    ReqID: data.ReqID,
+                    err: 'Item is not in the pricelist.'
+                }
+            });
+            return;
+        }
+        const entryData = this.bot.pricelist.getPrice(data.sku as string, false).getJSON();
+
+        delete entryData.time;
+
+        // Update entry
+        for (const property in data) {
+            if (!Object.prototype.hasOwnProperty.call(data, property)) {
+                continue;
+            }
+
+            entryData[property] = data[property];
+        }
+
+        this.bot.pricelist
+            .updatePrice(entryData, true)
+            .then(entry => {
+                process.send({
+                    type: 'updateItem',
+                    data: {
+                        ReqID: data.ReqID,
+                        err: 'Updated "' + entry.name + '".'
+                    }
+                });
+            })
+            .catch(err => {
+                process.send({
+                    type: 'updateItem',
+                    data: {
+                        ReqID: data.ReqID,
+                        err: 'Failed to update pricelist entry: ' +
+                            (err.body && err.body.message ? err.body.message : err.message)
+                    }
+                });
+            });
+    }
 }
