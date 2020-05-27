@@ -52,8 +52,48 @@ export = class PM2msg {
         });
         return true;
     }
+    removeItem(data: any) {
+        if (!data.sku) {
+            process.send({
+                type: 'removeItem',
+                data: {
+                    ReqID: data.ReqID,
+                    err: 'No SKU specified!'
+                }
+            });
+        }
+        this.bot.pricelist
+            .removePrice(data.sku as string, true)
+            .then(entry => {
+                process.send({
+                    type: 'removeItem',
+                    data: {
+                        ReqID: data.ReqID,
+                        msg: 'Removed "' + entry.name + '".'
+                    }
+                });
+            })
+            .catch(err => {
+                process.send({
+                    type: 'removeItem',
+                    data: {
+                        ReqID: data.ReqID,
+                        err: 'Failed to remove pricelist entry: ' + err.message
+                    }
+                });
+            });
+    }
 
     updateItem(data: any) {
+        if (!data.sku) {
+            process.send({
+                type: 'updateItem',
+                data: {
+                    ReqID: data.ReqID,
+                    err: 'No SKU specified!'
+                }
+            });
+        }
         if (!this.bot.pricelist.hasPrice(data.sku as string)) {
             process.send({
                 type: 'updateItem',
@@ -67,6 +107,7 @@ export = class PM2msg {
         const entryData = this.bot.pricelist.getPrice(data.sku as string, false).getJSON();
 
         delete entryData.time;
+        delete data.time;
 
         // Update entry
         for (const property in data) {
@@ -84,7 +125,7 @@ export = class PM2msg {
                     type: 'updateItem',
                     data: {
                         ReqID: data.ReqID,
-                        err: 'Updated "' + entry.name + '".'
+                        msg: 'Updated "' + entry.name + '".'
                     }
                 });
             })
