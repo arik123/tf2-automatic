@@ -35,21 +35,22 @@ export = class PM2msg {
     }
 
     getInfo(data: any) {
+        const id = this.bot.community.steamID
         //@ts-ignore
-        this.bot.community.getSteamUser(this.bot.community.client.toString(), (err, usr) => {
-            if (err) log.error(err);
+        this.bot.client.getPersonas([id]).then((personasRepsonse) => {
+            const userData = personasRepsonse.personas[id.toString()];
             const admins = this.bot.getAdmins();
-            console.log(admins);
             process.send({
                 type: 'getInfo',
                 data: {
                     ReqID: data.ReqID,
-                    name: usr.name,
-                    avatar: usr.getAvatarURL(),
+                    name: userData.player_name,
+                    avatar: userData.avatar_url_icon,
                     admins: admins.map(admin => admin.toString())
                 }
             });
         });
         return true;
     }
+
 }
