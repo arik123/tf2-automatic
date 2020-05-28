@@ -203,4 +203,13 @@ export = class PM2msg {
                 });
             });
     }
+    getTrades(data: any) {
+        process.send({
+            type: 'getTrades',
+            data: {
+                ReqID: data.ReqID,
+                polldata: this.bot.manager.pollData
+            }
+        });
+    }
 }
