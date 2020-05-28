@@ -35,6 +35,29 @@ export = class PM2msg {
         });
     }
 
+    clearPricelist(data: any) {
+        this.bot.pricelist
+            .removeAll()
+            .then(() => {
+                process.send({
+                    type: 'clearPricelist',
+                    data: {
+                        ReqID: data.ReqID,
+                        msg: 'Cleared pricelist!'
+                    }
+                });
+            })
+            .catch(err => {
+                process.send({
+                    type: 'clearPricelist',
+                    data: {
+                        ReqID: data.ReqID,
+                        msg: 'Failed to clear pricelist: ' + err.message
+                    }
+                });
+            });        
+    }
+
     getInfo(data: any) {
         const id = this.bot.community.steamID
         //@ts-ignore
@@ -203,6 +226,7 @@ export = class PM2msg {
                 });
             });
     }
+
     getTrades(data: any) {
         process.send({
             type: 'getTrades',
